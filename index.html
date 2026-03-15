@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wellington Santos - Finanças</title>
+    <!-- jsPDF para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -133,14 +135,14 @@
             font-weight: 500;
             color: var(--cinza-escuro);
         }
-        .input-group input {
+        .input-group input, .input-group select, .input-group textarea {
             padding: 14px 16px;
             border: 2px solid var(--cinza-claro);
             border-radius: 16px;
             font-size: 16px;
             transition: all 0.2s;
         }
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             border-color: var(--azul-medio);
             outline: none;
             box-shadow: 0 0 0 3px rgba(30,58,138,0.1);
@@ -159,6 +161,15 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(10,36,114,0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: var(--azul-profundo);
+            border: 2px solid var(--azul-profundo);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         /* App Main */
@@ -281,6 +292,11 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
 
         /* Progresso */
@@ -463,9 +479,35 @@
             margin: 8px 0;
         }
 
-        /* Responsividade */
+        /* Área de receita diária */
+        .daily-income-box {
+            background: linear-gradient(135deg, var(--verde-sucesso), #34D399);
+            color: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .daily-income-box .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .daily-income-box .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Imagem do carro */
+        .car-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
         @media (max-width: 480px) {
-            .grid-2 { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -474,7 +516,7 @@
     <div id="splashScreen">
         <div class="splash-content">
             <div class="splash-logo">
-                <img src="logotipo.icon.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
+                <img src="logotiponubanko.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
             </div>
             <div class="splash-title">Wellington Santos</div>
             <div class="splash-sub">Organizando suas finanças</div>
@@ -485,7 +527,7 @@
     <div id="loginPage">
         <div class="login-card">
             <div class="login-logo">
-                <img src="logotipo.icon.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
+                <img src="logotiponubanko.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
             </div>
             <h1 class="login-title">Acessar conta</h1>
             <p class="login-sub">Use suas credenciais para entrar</p>
@@ -509,7 +551,7 @@
         <header class="app-header">
             <div class="header-left">
                 <div class="header-logo">
-                    <img src="logotipo.icon.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
+                    <img src="logotiponubanko.png" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%230A2472\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E💰%3C/text%3E%3C/svg%3E'">
                 </div>
                 <span class="header-title">Wellington</span>
             </div>
@@ -523,6 +565,18 @@
         <div class="pages">
             <!-- Dashboard -->
             <div id="dashboardPage" class="page active">
+                <!-- Receita diária acumulada -->
+                <div class="daily-income-box">
+                    <div>
+                        <div class="label">💰 Receita acumulada</div>
+                        <div class="value" id="accumulatedIncome">R$ 0,00</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="label">Meta diária</div>
+                        <div class="value" id="dailyGoalDisplay">R$ 50,00</div>
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         <span>💰</span>
@@ -590,6 +644,12 @@
             <!-- Orçamento -->
             <div id="orcamentoPage" class="page">
                 <h3>🎯 Orçamento</h3>
+                <div class="card">
+                    <h4>Meta diária (para receita)</h4>
+                    <div class="card-value" id="dailyGoalDisplay2">R$ 50,00</div>
+                    <input type="number" id="dailyGoalInput" value="50" step="1" min="0" style="width:100%; padding:12px; border-radius:12px; border:2px solid var(--cinza-claro); margin:10px 0;">
+                    <button class="btn-primary" onclick="definirMetaDiaria()">Atualizar meta diária</button>
+                </div>
                 <div class="card">
                     <h4>Limite de gastos diário</h4>
                     <div class="card-value" id="dailyLimitDisplay">R$ 50,00</div>
@@ -667,9 +727,26 @@
 
                 <div id="fundsList"></div>
             </div>
+
+            <!-- Relatórios (nova página) -->
+            <div id="relatoriosPage" class="page">
+                <h3>📄 Relatórios</h3>
+                <div class="card">
+                    <h4>Resumo financeiro</h4>
+                    <p>Clique no botão abaixo para gerar um PDF com todas as suas transações, saldos e economias.</p>
+                    <button class="btn-primary" onclick="gerarPDF()">📥 Exportar PDF</button>
+                </div>
+
+                <div class="card">
+                    <h4>Gráficos (em breve)</h4>
+                    <div style="height:150px; background:var(--azul-suave); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                        📊 Integração com gráficos será adicionada
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Menu inferior com emojis -->
+        <!-- Menu inferior com emojis + relatórios -->
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="showPage('dashboardPage')">
                 <span class="nav-icon">📊</span>
@@ -691,14 +768,17 @@
                 <span class="nav-icon">🐷</span>
                 <span>Caixinhas</span>
             </button>
+            <button class="nav-item" onclick="showPage('relatoriosPage')">
+                <span class="nav-icon">📄</span>
+                <span>Relatórios</span>
+            </button>
         </nav>
 
         <!-- FAB para adicionar rápido (opcional) -->
         <button class="fab" onclick="abrirMenuRapido()">+</button>
     </div>
 
-    <!-- MODAIS -->
-
+    <!-- MODAIS (já existentes, manter) -->
     <!-- Modal Receita -->
     <div id="modalReceita" class="modal">
         <div class="modal-content">
@@ -989,8 +1069,9 @@
             avatar: null, // base64
             receitas: [],
             despesas: [],
-            economias: [],
+            economias: [], // economias diárias (receita acumulada)
             limiteDiario: 50,
+            metaDiaria: 50,      // nova meta diária para cálculo da receita
             metaMensal: 500,
             streak: 0,
             veiculo: {
@@ -1062,6 +1143,7 @@
                 atualizarTransacoes();
                 atualizarCarro();
                 atualizarCaixinhas();
+                atualizarReceitaDiaria();
             } else {
                 alert('Usuário ou senha incorretos');
             }
@@ -1073,18 +1155,14 @@
             document.getElementById(pageId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach((item, idx) => {
                 item.classList.remove('active');
-                if ((pageId === 'dashboardPage' && idx === 0) ||
-                    (pageId === 'transacoesPage' && idx === 1) ||
-                    (pageId === 'orcamentoPage' && idx === 2) ||
-                    (pageId === 'carroPage' && idx === 3) ||
-                    (pageId === 'caixinhasPage' && idx === 4)) {
-                    item.classList.add('active');
-                }
+                const pages = ['dashboardPage','transacoesPage','orcamentoPage','carroPage','caixinhasPage','relatoriosPage'];
+                if (pages[idx] === pageId) item.classList.add('active');
             });
             // Atualizar conteúdo da página ao mostrar
             if (pageId === 'transacoesPage') atualizarTransacoes();
             if (pageId === 'carroPage') atualizarCarro();
             if (pageId === 'caixinhasPage') atualizarCaixinhas();
+            if (pageId === 'dashboardPage') atualizarDashboard();
         }
 
         // ==================== HEADER E AVATAR ====================
@@ -1099,7 +1177,6 @@
 
         function abrirModalAvatar() {
             document.getElementById('modalConfig').classList.add('active');
-            // Prévia no modal
             const preview = document.getElementById('configAvatarPreview');
             if (db.avatar) {
                 preview.innerHTML = `<img src="${db.avatar}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -1145,6 +1222,58 @@
             fecharModal('modalConfig');
         }
 
+        // ==================== RECEITA DIÁRIA ====================
+        // Função para calcular a economia do dia (receita acumulada)
+        function calcularEconomiaDiaria() {
+            const hoje = new Date().toISOString().split('T')[0];
+            const despesasHoje = db.despesas
+                .filter(d => d.data === hoje)
+                .reduce((acc, d) => acc + d.valor, 0);
+            
+            const meta = db.metaDiaria || 50;
+            const economia = Math.max(0, meta - despesasHoje); // se gastou menos que a meta, vira economia
+
+            // Verificar se já existe registro de economia para hoje
+            const economiaExistente = db.economias.find(e => e.data === hoje);
+            if (economia > 0) {
+                if (economiaExistente) {
+                    economiaExistente.valor = economia;
+                } else {
+                    db.economias.push({
+                        id: Date.now(),
+                        data: hoje,
+                        valor: economia,
+                        descricao: 'Economia do dia'
+                    });
+                }
+            } else {
+                // Se não houve economia, remover registro se existir (ou deixar zerado)
+                if (economiaExistente) {
+                    db.economias = db.economias.filter(e => e.data !== hoje);
+                }
+            }
+            salvarDados();
+            return economia;
+        }
+
+        function atualizarReceitaDiaria() {
+            const totalEconomias = db.economias.reduce((acc, e) => acc + e.valor, 0);
+            document.getElementById('accumulatedIncome').innerText = `R$ ${totalEconomias.toFixed(2)}`;
+            document.getElementById('dailyGoalDisplay').innerText = `R$ ${(db.metaDiaria || 50).toFixed(2)}`;
+            document.getElementById('dailyGoalDisplay2').innerText = `R$ ${(db.metaDiaria || 50).toFixed(2)}`;
+        }
+
+        function definirMetaDiaria() {
+            const val = parseFloat(document.getElementById('dailyGoalInput').value);
+            if (val >= 0) {
+                db.metaDiaria = val;
+                salvarDados();
+                atualizarReceitaDiaria();
+                calcularEconomiaDiaria(); // recalcula com nova meta
+                alert('Meta diária atualizada');
+            }
+        }
+
         // ==================== DASHBOARD ====================
         function atualizarDashboard() {
             const totalReceitas = db.receitas.reduce((s, r) => s + r.valor, 0);
@@ -1159,8 +1288,8 @@
             document.getElementById('totalAssets').innerText = `R$ ${patrimonio.toFixed(2)}`;
 
             // Streak (simples: dias com economia)
-            const streak = db.streak || 0;
-            document.getElementById('streakDisplay').innerHTML = `🔥 ${streak} dias seguidos economizando`;
+            const streak = db.economias.length; // simplificado
+            document.getElementById('streakDisplay').innerHTML = `🔥 ${streak} dias com economia`;
 
             // Últimas transações
             const todas = [
@@ -1179,6 +1308,8 @@
                 </div>
             `).join('');
             document.getElementById('recentTransactions').innerHTML = recentHtml || '<p>Nenhuma transação recente</p>';
+
+            atualizarReceitaDiaria();
         }
 
         // ==================== TRANSAÇÕES ====================
@@ -1193,7 +1324,7 @@
                 ...db.despesas.map(d => ({ ...d, tipo: 'despesa' }))
             ];
             if (filtroTipo !== 'todas') {
-                transacoes = transacoes.filter(t => t.tipo === filtroTipo.slice(0,-1)); // 'receitas' -> 'receita'
+                transacoes = transacoes.filter(t => t.tipo === filtroTipo.slice(0,-1));
             }
             transacoes.sort((a,b) => new Date(b.data) - new Date(a.data));
             const html = transacoes.map(t => `
@@ -1220,6 +1351,7 @@
                 salvarDados();
                 atualizarTransacoes();
                 atualizarDashboard();
+                calcularEconomiaDiaria(); // recalcular economia do dia
             }
         }
 
@@ -1261,6 +1393,7 @@
             db.despesas.push(nova);
             salvarDados();
             fecharModal('modalDespesa');
+            calcularEconomiaDiaria(); // recalcular economia do dia
             atualizarDashboard();
             atualizarTransacoes();
         }
@@ -1294,9 +1427,11 @@
         // ==================== CARRO ====================
         function atualizarCarro() {
             const v = db.veiculo;
+            // Usar imagem renout kwid.png se disponível, senão emoji
+            const carImg = '<img src="renout kwid.png" class="car-image" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'inline\';" style="display:none;"><span style="font-size:40px;">🚗</span>';
             document.getElementById('vehicleProfile').innerHTML = `
                 <div style="display:flex; gap:15px; align-items:center;">
-                    <div style="font-size:40px;">🚗</div>
+                    <div style="font-size:40px;">${carImg}</div>
                     <div>
                         <h4>${v.modelo} (${v.ano})</h4>
                         <p>🔧 ${v.km} km • ⛽ ${v.combustivel}</p>
@@ -1355,7 +1490,6 @@
             const km = v.km;
             const ultimaTroca = db.manutencoes.filter(m => m.categoria === 'Troca de óleo').sort((a,b) => new Date(b.data) - new Date(a.data))[0];
             if (ultimaTroca) {
-                // Simular km da troca (se não tiver, usar km - 5000)
                 const kmTroca = ultimaTroca.km || km - 5000;
                 if (km - kmTroca > 4500) alerts.push('Troca de óleo próxima (a cada 5000 km)');
             }
@@ -1510,22 +1644,72 @@
             atualizarDashboard();
         }
 
+        // ==================== RELATÓRIO PDF ====================
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text('Relatório Financeiro - Wellington Santos', 20, 20);
+
+            doc.setFontSize(12);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString()}`, 20, 30);
+
+            let y = 40;
+
+            // Saldo
+            const totalReceitas = db.receitas.reduce((s, r) => s + r.valor, 0);
+            const totalDespesas = db.despesas.reduce((s, d) => s + d.valor, 0);
+            const saldo = totalReceitas - totalDespesas;
+            doc.text(`Saldo atual: R$ ${saldo.toFixed(2)}`, 20, y); y += 10;
+            doc.text(`Receitas totais: R$ ${totalReceitas.toFixed(2)}`, 20, y); y += 10;
+            doc.text(`Despesas totais: R$ ${totalDespesas.toFixed(2)}`, 20, y); y += 10;
+
+            // Economias
+            const totalEconomias = db.economias.reduce((s, e) => s + e.valor, 0);
+            doc.text(`Economias acumuladas: R$ ${totalEconomias.toFixed(2)}`, 20, y); y += 10;
+
+            // Caixinhas
+            const totalCaixinhas = db.caixinhas.reduce((s, c) => s + c.valor, 0);
+            doc.text(`Total em caixinhas: R$ ${totalCaixinhas.toFixed(2)}`, 20, y); y += 10;
+
+            // Patrimônio
+            doc.text(`Patrimônio total: R$ ${(saldo + totalCaixinhas).toFixed(2)}`, 20, y); y += 20;
+
+            // Últimas transações
+            doc.text('Últimas transações:', 20, y); y += 10;
+            const ultimas = [
+                ...db.receitas.map(r => ({ ...r, tipo: 'Receita' })),
+                ...db.despesas.map(d => ({ ...d, tipo: 'Despesa' }))
+            ].sort((a,b) => new Date(b.data) - new Date(a.data)).slice(0,10);
+
+            ultimas.forEach(t => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(`${t.data} - ${t.tipo}: ${t.descricao} - R$ ${t.valor.toFixed(2)}`, 20, y);
+                y += 7;
+            });
+
+            doc.save('relatorio_financeiro.pdf');
+        }
+
         // ==================== UTILITÁRIOS ====================
         function fecharModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
 
         function abrirMenuRapido() {
-            // Exemplo: pode abrir um menu ou apenas navegar para transações
             showPage('transacoesPage');
         }
 
-        // Inicializar
-        window.atualizarHeader = atualizarHeader;
+        // Expor funções globalmente
         window.showPage = showPage;
         window.filtrarTransacoes = filtrarTransacoes;
         window.definirLimiteDiario = definirLimiteDiario;
         window.definirMetaMensal = definirMetaMensal;
+        window.definirMetaDiaria = definirMetaDiaria;
         window.abrirModalReceita = abrirModalReceita;
         window.abrirModalDespesa = abrirModalDespesa;
         window.abrirModalVeiculo = abrirModalVeiculo;
@@ -1540,6 +1724,7 @@
         window.excluirTransacao = excluirTransacao;
         window.excluirCaixinha = excluirCaixinha;
         window.abrirMenuRapido = abrirMenuRapido;
+        window.gerarPDF = gerarPDF;
     </script>
 </body>
 </html>
